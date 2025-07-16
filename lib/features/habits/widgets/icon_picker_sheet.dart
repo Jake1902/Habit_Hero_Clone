@@ -5,29 +5,40 @@ class IconPickerSheet extends StatelessWidget {
   const IconPickerSheet({super.key, required this.onSelected});
 
   static const _icons = [
-    '🔥','💧','🏃','📚','💪','🎯','🧘','🛏️','🚭','🥦','🎨','📖','⌚','🗒️','💡','🎵'
+    '🔥', '💧', '🏃', '📚', '💪', '🎯', '🧘', '🛏️',
+    '🚭', '🥦', '🎨', '📖', '⌚', '🗒️', '💡', '🎵',
   ];
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Wrap(
-          spacing: 16,
-          runSpacing: 16,
-          children: [
-            for (final icon in _icons)
-              GestureDetector(
-                onTap: () => onSelected(icon),
-                child: CircleAvatar(
-                  radius: 28,
-                  child: Text(icon, style: const TextStyle(fontSize: 24)),
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: .8,
+      builder: (context, controller) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: GridView.count(
+            controller: controller,
+            crossAxisCount: 6,
+            childAspectRatio: 1,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            children: [
+              for (final icon in _icons)
+                InkWell(
+                  onTap: () => onSelected(icon),
+                  child: Center(
+                    child: Text(icon, style: const TextStyle(fontSize: 24)),
+                  ),
                 ),
-              ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

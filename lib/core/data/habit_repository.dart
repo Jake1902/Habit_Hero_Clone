@@ -10,6 +10,7 @@ class HabitRepository {
   List<Habit> _cache = [];
 
   HabitRepository() {
+    _controller.onListen = _emit; // emit current cache to new listeners
     _load();
   }
 

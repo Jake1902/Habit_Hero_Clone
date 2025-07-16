@@ -7,6 +7,7 @@ import '../../core/data/preferences_service.dart';
 import '../../core/data/providers.dart';
 import '../../core/streak/streak_service.dart';
 import 'heatmap_widget.dart';
+import 'bottom_navbar.dart';
 
 part 'habit_heatmap_card.dart';
 
@@ -68,11 +69,17 @@ class HomeScreen extends ConsumerWidget {
             return asyncHabits.when(
               data: (habits) {
                 if (habits.isEmpty) return const _EmptyState();
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: habits.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (_, i) => HabitHeatmapCard(habit: habits[i]),
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                  child: Column(
+                    children: [
+                      for (int i = 0; i < habits.length; i++) ...[
+                        HabitHeatmapCard(habit: habits[i]),
+                        if (i != habits.length - 1)
+                          const SizedBox(height: 12),
+                      ],
+                    ],
+                  ),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -85,6 +92,12 @@ class HomeScreen extends ConsumerWidget {
         onPressed: () => context.push('/add'),
         backgroundColor: accent,
         child: const Icon(Icons.add),
+      ),
+      bottomNavigationBar: HomeBottomNav(
+        index: 0,
+        onTap: (i) {
+          // TODO switch modes
+        },
       ),
     );
   }

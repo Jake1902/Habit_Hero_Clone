@@ -4,8 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/data/models/habit.dart';
 import '../../core/data/providers.dart';
-import 'widgets/color_picker_grid.dart';
-import 'widgets/icon_picker_sheet.dart';
+import '../habits/widgets/color_picker_grid.dart';
+import '../habits/widgets/icon_picker_sheet.dart';
+import '../../core/widgets/primary_button.dart';
+
+const kAccent = Color(0xFF9E4DFF);
+const kBg = Color(0xFF121212);
+const kCard = Color(0xFF1E1E1E);
 
 class AddEditHabitScreen extends ConsumerStatefulWidget {
   final String? habitId;
@@ -18,8 +23,11 @@ class AddEditHabitScreen extends ConsumerStatefulWidget {
 class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
+  int _color = kAccent.value;
   String _icon = '🔥';
-  int _color = 0xFF9E4DFF;
+  int _target = 1;
+  int _mode = 0;
+
   bool get _isEditing => widget.habitId != null;
 
   @override
@@ -27,12 +35,13 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
     super.initState();
     if (_isEditing) {
       final repo = ref.read(habitRepoProvider);
-      repo.getHabits().then((habits) {
-        final h = habits.firstWhere((e) => e.id == widget.habitId);
+      repo.getHabits().then((list) {
+        final h = list.firstWhere((e) => e.id == widget.habitId);
         _nameController.text = h.name;
         _descController.text = h.description;
         _icon = h.icon;
         _color = h.colorValue;
+        _target = h.targetPerDay;
         setState(() {});
       });
     }
@@ -45,10 +54,24 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
     super.dispose();
   }
 
+  void _pickIcon() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => IconPickerSheet(
+        onSelected: (icon) {
+          setState(() => _icon = icon);
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
   Future<void> _save() async {
-    final repo = ref.read(habitRepoProvider);
     final name = _nameController.text.trim();
     final desc = _descController.text.trim();
+    final repo = ref.read(habitRepoProvider);
     if (_isEditing) {
       final habit = Habit(
         id: widget.habitId!,
@@ -56,6 +79,7 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
         description: desc,
         icon: _icon,
         colorValue: _color,
+        targetPerDay: _target,
       );
       await repo.updateHabit(habit);
     } else {
@@ -65,6 +89,7 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
         description: desc,
         icon: _icon,
         colorValue: _color,
+        targetPerDay: _target,
       );
       await repo.addHabit(habit);
     }
@@ -85,30 +110,22 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
     if (mounted) context.pop();
   }
 
-  void _pickIcon() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => IconPickerSheet(
-        onSelected: (icon) {
-          setState(() => _icon = icon);
-          Navigator.pop(context);
-        },
-      ),
-    );
-  }
+  void _inc() => setState(() => _target++);
+  void _dec() => setState(() => _target = _target > 1 ? _target - 1 : 1);
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final valid = _nameController.text.trim().isNotEmpty;
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      body: CustomScrollView(
-        slivers: [
+      backgroundColor: kBg,
+      body: NestedScrollView(
+        headerSliverBuilder: (context, _) => [
           SliverAppBar(
+            backgroundColor: kBg,
+            leading: IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () => context.pop(),
+            ),
             title: Text(_isEditing ? 'Edit Habit' : 'New Habit'),
             actions: [
               if (_isEditing)
@@ -121,67 +138,95 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
                 ),
             ],
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: _pickIcon,
-                    child: CircleAvatar(
-                      radius: 32,
-                      backgroundColor: Color(_color),
-                      child: Text(_icon, style: const TextStyle(fontSize: 32)),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: _nameController,
-                    onChanged: (_) => setState(() {}),
-                    decoration: const InputDecoration(labelText: 'Name'),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _descController,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                  ),
-                  const SizedBox(height: 16),
-                  ColorPickerGrid(
-                    selected: _color,
-                    onChanged: (c) => setState(() => _color = c),
-                  ),
-                  const SizedBox(height: 16),
-                  ExpansionTile(
-                    title: const Text('Advanced options'),
-                    children: const [
-                      ListTile(title: Text('Target per day')),
-                      ListTile(title: Text('Reminder')),
-                    ],
-                  ),
-                  const SizedBox(height: 80),
-                ],
+        ],
+        body: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            GestureDetector(
+              onTap: _pickIcon,
+              child: CircleAvatar(
+                radius: 56,
+                backgroundColor: Color(_color),
+                child: Text(_icon, style: const TextStyle(fontSize: 40)),
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+            TextField(
+              controller: _nameController,
+              autofocus: true,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(labelText: 'Name'),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _descController,
+              maxLines: 3,
+              decoration: const InputDecoration(labelText: 'Description'),
+            ),
+            const SizedBox(height: 16),
+            ColorPickerGrid(
+              selectedColor: _color,
+              onChanged: (c) => setState(() => _color = c),
+            ),
+            const SizedBox(height: 16),
+            ExpansionTile(
+              title: const Text('Advanced Options'),
+              childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              children: [
+                ListTile(
+                  title: const Text('Streak Goal'),
+                  trailing: const Text('None'),
+                  onTap: () {},
+                ),
+                ListTile(
+                  title: const Text('Reminder'),
+                  trailing: const Text('None'),
+                  onTap: () {},
+                ),
+                ListTile(
+                  title: const Text('Categories'),
+                  trailing: const Text('None'),
+                  onTap: () {},
+                ),
+                const SizedBox(height: 8),
+                SegmentedButton<int>(
+                  segments: const [
+                    ButtonSegment(value: 0, label: Text('Step by step')),
+                    ButtonSegment(value: 1, label: Text('Custom value')),
+                  ],
+                  selected: {_mode},
+                  onSelectionChanged: (v) => setState(() => _mode = v.first),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(icon: const Icon(Icons.remove), onPressed: _dec),
+                    SizedBox(
+                      width: 48,
+                      child: TextFormField(
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.number,
+                        controller: TextEditingController(text: '$_target'),
+                        onChanged: (v) {
+                          final n = int.tryParse(v) ?? _target;
+                          setState(() => _target = n);
+                        },
+                      ),
+                    ),
+                    IconButton(icon: const Icon(Icons.add), onPressed: _inc),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 80),
+          ],
+        ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          height: 56,
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: valid ? _save : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('Save'),
-          ),
-        ),
+        child: PrimaryButton('Save', onPressed: valid ? _save : null),
       ),
     );
   }

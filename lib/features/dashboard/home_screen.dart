@@ -2,36 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/data/models/habit.dart';
-import '../../core/data/preferences_service.dart';
 import '../../core/data/providers.dart';
-import '../../core/streak/streak_service.dart';
+import '../../core/widgets/primary_button.dart';
+import 'empty_state_widget.dart';
 import 'heatmap_widget.dart';
 import 'bottom_navbar.dart';
 
 part 'habit_heatmap_card.dart';
+
+const kAccent = Color(0xFF9E4DFF);
+const kBg = Color(0xFF121212);
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<AsyncValue<String>>(newRecordProvider, (previous, value) {
-      value.whenData((id) {
+    ref.listen<String?>(newRecordProvider, (_, id) {
+      if (id != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('🔥 New longest streak!'),
-            duration: Duration(seconds: 2),
-          ),
+          const SnackBar(content: Text('🔥 New longest streak!')),
         );
-      });
+      }
     });
 
-    final accent = Theme.of(context).colorScheme.primary;
-
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      resizeToAvoidBottomInset: false,
+      backgroundColor: kBg,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -42,26 +39,24 @@ class HomeScreen extends ConsumerWidget {
         title: RichText(
           text: TextSpan(
             style: Theme.of(context).textTheme.headlineMedium,
-            children: [
-              const TextSpan(text: 'Habit', style: TextStyle(color: Colors.white)),
-              TextSpan(text: 'Hero', style: TextStyle(color: accent)),
+            children: const [
+              TextSpan(text: 'Habit', style: TextStyle(color: Colors.white)),
+              TextSpan(text: 'Hero', style: TextStyle(color: kAccent)),
             ],
           ),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.bar_chart_outlined),
+            icon: const Icon(Icons.show_chart_outlined),
             onPressed: () => context.push('/analytics'),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: IconButton(
-              icon: const Icon(Icons.add_circle_outline),
-              onPressed: () => context.push('/add'),
-            ),
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: () => context.push('/add'),
           ),
         ],
       ),
+
       body: SafeArea(
         child: Consumer(
           builder: (context, ref, _) {
@@ -87,11 +82,12 @@ class HomeScreen extends ConsumerWidget {
             );
           },
         ),
+
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/add'),
-        backgroundColor: accent,
+        backgroundColor: kAccent,
         child: const Icon(Icons.add),
+
       ),
       bottomNavigationBar: HomeBottomNav(
         index: 0,
@@ -125,6 +121,7 @@ class _EmptyState extends StatelessWidget {
             child: const Text('Add Habit'),
           ),
         ],
+
       ),
     );
   }

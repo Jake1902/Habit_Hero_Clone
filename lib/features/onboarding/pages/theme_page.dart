@@ -42,19 +42,31 @@ class _ThemePageState extends ConsumerState<ThemePage> {
                   title: const Text('System'),
                   value: ThemeMode.system,
                   groupValue: _mode,
-                  onChanged: (m) => setState(() => _mode = m!),
+                  onChanged: (m) {
+                    if (m == null) return;
+                    setState(() => _mode = m);
+                    ref.read(themeModeProvider.notifier).setTheme(m);
+                  },
                 ),
                 RadioListTile<ThemeMode>(
                   title: const Text('Light'),
                   value: ThemeMode.light,
                   groupValue: _mode,
-                  onChanged: (m) => setState(() => _mode = m!),
+                  onChanged: (m) {
+                    if (m == null) return;
+                    setState(() => _mode = m);
+                    ref.read(themeModeProvider.notifier).setTheme(m);
+                  },
                 ),
                 RadioListTile<ThemeMode>(
                   title: const Text('Dark'),
                   value: ThemeMode.dark,
                   groupValue: _mode,
-                  onChanged: (m) => setState(() => _mode = m!),
+                  onChanged: (m) {
+                    if (m == null) return;
+                    setState(() => _mode = m);
+                    ref.read(themeModeProvider.notifier).setTheme(m);
+                  },
                 ),
               ],
             ),

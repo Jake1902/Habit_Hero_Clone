@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../core/data/providers.dart';
 import '../../core/data/models/habit.dart';
 import '../../core/data/preferences_service.dart';
+import '../../core/data/providers.dart';
 import '../../core/streak/streak_service.dart';
 import 'heatmap_widget.dart';
-import 'package:go_router/go_router.dart';
+
 part 'habit_heatmap_card.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -14,33 +15,78 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<AsyncValue<String>>(newRecordProvider, (_, value) {
+    ref.listen<AsyncValue<String>>(newRecordProvider, (previous, value) {
       value.whenData((id) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('🔥 New longest streak!')),
+          const SnackBar(
+            content: Text('🔥 New longest streak!'),
+            duration: Duration(seconds: 2),
+          ),
         );
       });
     });
 
-    return ref.watch(habitListProvider).when(
-          data: (habits) {
-            if (habits.isEmpty) return const _EmptyState();
-            return ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: habits.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) {
-                final h = habits[i];
-                return ProviderScope(
-                  overrides: [_currentHabit.overrideWithValue(h)],
-                  child: const HabitHeatmapCard(),
+    final accent = Theme.of(context).colorScheme.primary;
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: () => context.push('/settings'),
+        ),
+        title: RichText(
+          text: TextSpan(
+            style: Theme.of(context).textTheme.headlineMedium,
+            children: [
+              const TextSpan(text: 'Habit', style: TextStyle(color: Colors.white)),
+              TextSpan(text: 'Hero', style: TextStyle(color: accent)),
+            ],
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart_outlined),
+            onPressed: () => context.push('/analytics'),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: const Icon(Icons.add_circle_outline),
+              onPressed: () => context.push('/add'),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Consumer(
+          builder: (context, ref, _) {
+            final asyncHabits = ref.watch(habitListProvider);
+            return asyncHabits.when(
+              data: (habits) {
+                if (habits.isEmpty) return const _EmptyState();
+                return ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: habits.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (_, i) => HabitHeatmapCard(habit: habits[i]),
                 );
               },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('Error: $e')),
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Error: $e')),
-        );
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/add'),
+        backgroundColor: accent,
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 }
 
@@ -49,6 +95,24 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('No habits yet'));
+    final textTheme = Theme.of(context).textTheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.add, size: 48, color: Colors.white54),
+          const SizedBox(height: 12),
+          Text('No habits yet', style: textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text('Tap the + button to start tracking',
+              style: textTheme.bodySmall),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => context.push('/add'),
+            child: const Text('Add Habit'),
+          ),
+        ],
+      ),
+    );
   }
 }

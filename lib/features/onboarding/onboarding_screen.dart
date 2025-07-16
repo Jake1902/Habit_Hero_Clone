@@ -20,17 +20,17 @@ class OnboardingScreen extends ConsumerWidget {
       ThemePage(controller: controller),
     ];
 
-    return Theme(
-      data: ThemeData.dark(),
-      child: Scaffold(
-        backgroundColor: const Color(0xFF121212),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF121212),
-          elevation: 0,
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        elevation: 0,
         actions: [
           TextButton(
             onPressed: () => controller.skip(context),
-            child: const Text('Skip', style: TextStyle(color: Colors.white70)),
+            child: Text('Skip',
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary)),
           ),
         ],
       ),
@@ -47,15 +47,17 @@ class OnboardingScreen extends ConsumerWidget {
           SmoothPageIndicator(
             controller: controller.pageController,
             count: pages.length,
-            effect: const WormEffect(
-              activeDotColor: Color(0xFF9E4DFF),
-              dotColor: Colors.white24,
+            effect: WormEffect(
+              activeDotColor: Theme.of(context).colorScheme.primary,
+              dotColor: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withOpacity(0.24),
             ),
           ),
           const SizedBox(height: 24),
         ],
       ),
-    ),
-  );
+    );
   }
 }

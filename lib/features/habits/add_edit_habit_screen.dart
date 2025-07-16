@@ -105,7 +105,7 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
     final theme = Theme.of(context);
     final valid = _nameController.text.trim().isNotEmpty;
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -174,7 +174,7 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
           child: ElevatedButton(
             onPressed: valid ? _save : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF9E4DFF),
+              backgroundColor: Theme.of(context).colorScheme.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

@@ -6,6 +6,7 @@ import 'routing/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PreferencesService.init();
   final firstLaunch = await PreferencesService.isFirstLaunch();
   final initialRoute = firstLaunch ? '/onboarding' : '/';
   final router = AppRouter.create(initialRoute);

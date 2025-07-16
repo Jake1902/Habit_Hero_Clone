@@ -1,23 +1,26 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesService {
   static const _firstLaunchKey = 'firstLaunch';
   static const _themeModeKey = 'themeMode';
+  static late SharedPreferences _prefs;
+
+  static Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
 
   static Future<bool> isFirstLaunch() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_firstLaunchKey) ?? true;
+    return _prefs.getBool(_firstLaunchKey) ?? true;
   }
 
   static Future<void> setFirstLaunchFalse() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_firstLaunchKey, false);
+    await _prefs.setBool(_firstLaunchKey, false);
   }
 
   static Future<ThemeMode> getThemeMode() async {
-    final prefs = await SharedPreferences.getInstance();
-    final value = prefs.getString(_themeModeKey);
+    final value = _prefs.getString(_themeModeKey);
     switch (value) {
       case 'light':
         return ThemeMode.light;
@@ -29,10 +32,31 @@ class PreferencesService {
   }
 
   static Future<void> setThemeMode(ThemeMode mode) async {
-    final prefs = await SharedPreferences.getInstance();
     String value = 'system';
     if (mode == ThemeMode.light) value = 'light';
     if (mode == ThemeMode.dark) value = 'dark';
-    await prefs.setString(_themeModeKey, value);
+    await _prefs.setString(_themeModeKey, value);
+  }
+
+  static List<Map<String, dynamic>> readHabitListJson() {
+    final str = _prefs.getString('habits');
+    if (str == null || str.isEmpty) return [];
+    final List list = jsonDecode(str) as List;
+    return List<Map<String, dynamic>>.from(list);
+  }
+
+  static Future<void> saveHabitListJson(List<Map<String, dynamic>> list) async {
+    await _prefs.setString('habits', jsonEncode(list));
+  }
+
+  static Map<String, dynamic> readCompletionsJson(String habitId) {
+    final str = _prefs.getString('completions_$habitId');
+    if (str == null || str.isEmpty) return {};
+    return Map<String, dynamic>.from(jsonDecode(str) as Map);
+  }
+
+  static Future<void> saveCompletionsJson(
+      String habitId, Map<String, dynamic> map) async {
+    await _prefs.setString('completions_$habitId', jsonEncode(map));
   }
 }

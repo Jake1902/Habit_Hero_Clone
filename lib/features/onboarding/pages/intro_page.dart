@@ -135,7 +135,10 @@ class _PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: Text(label),
+        child: Text(
+          label,
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
     );
   }

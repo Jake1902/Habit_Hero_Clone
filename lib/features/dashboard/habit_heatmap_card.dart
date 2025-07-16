@@ -1,13 +1,11 @@
 part of 'home_screen.dart';
 
-final _currentHabit = Provider<Habit>((ref) => throw UnimplementedError());
-
 class HabitHeatmapCard extends ConsumerWidget {
-  const HabitHeatmapCard({super.key});
+  final Habit habit;
+  const HabitHeatmapCard({super.key, required this.habit});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final habit = ref.watch(_currentHabit);
     final repo = ref.read(habitRepoProvider);
     final map = PreferencesService.readCompletionsJson(habit.id);
     final completions = map.map((k, v) => MapEntry(DateTime.parse(k), v as int));

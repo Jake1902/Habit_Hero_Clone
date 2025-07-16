@@ -11,6 +11,10 @@ final habitListProvider = StreamProvider<List<Habit>>(
   (ref) => ref.watch(habitRepoProvider).watchHabits(),
 );
 
+final newRecordProvider = StreamProvider<String>(
+  (ref) => ref.watch(habitRepoProvider).newRecordStream(),
+);
+
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   ThemeModeNotifier() : super(ThemeMode.system) {
     _load();

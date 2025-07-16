@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../main.dart';
+import '../features/dashboard/home_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
 import '../features/habits/add_edit_habit_screen.dart';
 
@@ -12,7 +12,7 @@ class AppRouter {
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => const MyHomePage(title: 'Flutter Demo Home Page'),
+          builder: (context, state) => const HomeScreen(),
         ),
         GoRoute(
           path: '/onboarding',

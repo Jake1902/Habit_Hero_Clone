@@ -9,7 +9,7 @@ final currentPageProvider = StateProvider<int>((ref) => 0);
 class OnboardingController {
   OnboardingController(this.ref);
 
-  final Ref ref;
+  final WidgetRef ref;
   final PageController pageController = PageController();
 
   void onPageChanged(int index) {

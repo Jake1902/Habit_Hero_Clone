@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/data/providers.dart';
+import '../../core/data/models/habit.dart';
+import '../../core/data/preferences_service.dart';
+import '../../core/streak/streak_service.dart';
 import '../../core/widgets/primary_button.dart';
 import 'empty_state_widget.dart';
 import 'heatmap_widget.dart';
@@ -17,12 +20,12 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<String?>(newRecordProvider, (_, id) {
-      if (id != null) {
+    ref.listen<AsyncValue<String>>(newRecordProvider, (_, value) {
+      value.whenData((id) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('🔥 New longest streak!')),
         );
-      }
+      });
     });
 
     return Scaffold(

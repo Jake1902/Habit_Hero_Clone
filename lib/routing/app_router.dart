@@ -27,7 +27,8 @@ class AppRouter {
         ),
         GoRoute(
           path: '/edit/:id',
-          builder: (_, state) => AddEditHabitScreen(habitId: state.params['id']!),
+          builder: (_, state) =>
+              AddEditHabitScreen(habitId: state.pathParameters['id']!),
         ),
       ],
     );

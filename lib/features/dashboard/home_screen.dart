@@ -85,13 +85,14 @@ class HomeScreen extends ConsumerWidget {
             );
           },
         ),
-
       ),
+
       floatingActionButton: FloatingActionButton(
         backgroundColor: kAccent,
         child: const Icon(Icons.add),
-
+        onPressed: () => context.push('/add'), // <-- Added this line
       ),
+
       bottomNavigationBar: HomeBottomNav(
         index: 0,
         onTap: (i) {
@@ -124,7 +125,6 @@ class _EmptyState extends StatelessWidget {
             child: const Text('Add Habit'),
           ),
         ],
-
       ),
     );
   }

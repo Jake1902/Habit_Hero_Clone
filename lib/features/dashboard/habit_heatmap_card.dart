@@ -1,15 +1,5 @@
 part of 'home_screen.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
-import '../../core/data/models/habit.dart';
-import '../../core/data/providers.dart';
-import '../../core/data/preferences_service.dart';
-import '../../core/streak/streak_service.dart';
-import 'heatmap_widget.dart';
-
 final _currentHabit = Provider<Habit>((ref) => throw UnimplementedError());
 
 class HabitHeatmapCard extends ConsumerWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/data/preferences_service.dart';
+import '../../../core/data/preferences_service.dart';
 import '../onboarding_controller.dart';
 
 class ThemePage extends StatefulWidget {

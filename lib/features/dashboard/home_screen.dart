@@ -6,6 +6,7 @@ import '../../core/data/providers.dart';
 import '../../core/widgets/primary_button.dart';
 import 'empty_state_widget.dart';
 import 'heatmap_widget.dart';
+import 'bottom_navbar.dart';
 
 part 'habit_heatmap_card.dart';
 
@@ -55,30 +56,72 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Consumer(
-        builder: (context, ref, _) {
-          final habits = ref.watch(habitListProvider);
-          return habits.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Error: $e')),
-            data: (list) {
-              if (list.isEmpty) {
-                return EmptyStateWidget(onCreate: () => context.push('/add'));
-              }
-              return ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: list.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (_, i) => HabitHeatmapCard(habit: list[i]),
-              );
-            },
-          );
-        },
+
+      body: SafeArea(
+        child: Consumer(
+          builder: (context, ref, _) {
+            final asyncHabits = ref.watch(habitListProvider);
+            return asyncHabits.when(
+              data: (habits) {
+                if (habits.isEmpty) return const _EmptyState();
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                  child: Column(
+                    children: [
+                      for (int i = 0; i < habits.length; i++) ...[
+                        HabitHeatmapCard(habit: habits[i]),
+                        if (i != habits.length - 1)
+                          const SizedBox(height: 12),
+                      ],
+                    ],
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('Error: $e')),
+            );
+          },
+        ),
+
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: kAccent,
         child: const Icon(Icons.add),
-        onPressed: () => context.push('/add'),
+
+      ),
+      bottomNavigationBar: HomeBottomNav(
+        index: 0,
+        onTap: (i) {
+          // TODO switch modes
+        },
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.add, size: 48, color: Colors.white54),
+          const SizedBox(height: 12),
+          Text('No habits yet', style: textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text('Tap the + button to start tracking',
+              style: textTheme.bodySmall),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => context.push('/add'),
+            child: const Text('Add Habit'),
+          ),
+        ],
+
       ),
     );
   }

@@ -20,11 +20,13 @@ class OnboardingScreen extends ConsumerWidget {
       ThemePage(controller: controller),
     ];
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
+    return Theme(
+      data: ThemeData.dark(),
+      child: Scaffold(
         backgroundColor: const Color(0xFF121212),
-        elevation: 0,
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF121212),
+          elevation: 0,
         actions: [
           TextButton(
             onPressed: () => controller.skip(context),
@@ -53,6 +55,7 @@ class OnboardingScreen extends ConsumerWidget {
           const SizedBox(height: 24),
         ],
       ),
-    );
+    ),
+  );
   }
 }

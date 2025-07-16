@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'models/habit.dart';
 import 'preferences_service.dart';
+import '../streak/streak_service.dart';
 
 class HabitRepository {
   final _controller = StreamController<List<Habit>>.broadcast();
+  final _newRecordController = StreamController<String>.broadcast();
   List<Habit> _cache = [];
 
   HabitRepository() {
@@ -69,6 +71,11 @@ class HabitRepository {
     await _save();
   }
 
+  Map<DateTime, int> _getCompletions(String habitId) {
+    final map = PreferencesService.readCompletionsJson(habitId);
+    return map.map((k, v) => MapEntry(DateTime.parse(k), v as int));
+  }
+
   Future<void> toggleCompletion(String habitId, DateTime date) async {
     final key = date.toIso8601String().split('T').first;
     final map = PreferencesService.readCompletionsJson(habitId);
@@ -78,7 +85,17 @@ class HabitRepository {
       map[key] = 1;
     }
     await PreferencesService.saveCompletionsJson(habitId, map);
+    final comps = _getCompletions(habitId);
+    final (current, longest) = StreakService.compute(comps);
+    final storedLongest = PreferencesService.getLongestStreak(habitId);
+    if (longest > storedLongest) {
+      await PreferencesService.setLongestStreak(habitId, longest);
+      _newRecordController.add(habitId);
+    }
+    _controller.add(_activeHabits());
   }
 
   Stream<List<Habit>> watchHabits() => _controller.stream;
+
+  Stream<String> newRecordStream() => _newRecordController.stream;
 }

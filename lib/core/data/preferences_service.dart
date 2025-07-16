@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PreferencesService {
   static const _firstLaunchKey = 'firstLaunch';
   static const _themeModeKey = 'themeMode';
+  static const _longestPrefix = 'streak_longest_';
   static late SharedPreferences _prefs;
 
   static Future<void> init() async {
@@ -59,4 +60,10 @@ class PreferencesService {
       String habitId, Map<String, dynamic> map) async {
     await _prefs.setString('completions_$habitId', jsonEncode(map));
   }
+
+  static int getLongestStreak(String habitId) =>
+      _prefs.getInt('$_longestPrefix$habitId') ?? 0;
+
+  static Future<void> setLongestStreak(String habitId, int v) =>
+      _prefs.setInt('$_longestPrefix$habitId', v);
 }

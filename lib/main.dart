@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'core/data/preferences_service.dart';
 import 'core/data/providers.dart';
 import 'routing/app_router.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,8 +27,8 @@ class MyApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Flutter Demo',
       routerConfig: router,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       themeMode: mode,
     );
   }

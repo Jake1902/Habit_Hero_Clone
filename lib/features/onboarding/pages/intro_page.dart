@@ -3,8 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../onboarding_controller.dart';
 
-const primary = Color(0xFF9E4DFF);
-
 class IntroPage extends StatelessWidget {
   final OnboardingController controller;
   const IntroPage({super.key, required this.controller});
@@ -19,7 +17,7 @@ class IntroPage extends StatelessWidget {
             height: 48,
             width: 48,
             decoration: BoxDecoration(
-              color: primary.withOpacity(.15),
+              color: Theme.of(context).colorScheme.primary.withOpacity(.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color),
@@ -67,9 +65,11 @@ class IntroPage extends StatelessWidget {
           RichText(
             text: TextSpan(
               style: headline,
-              children: const [
-                TextSpan(text: 'Habit'),
-                TextSpan(text: 'Hero', style: TextStyle(color: primary)),
+              children: [
+                const TextSpan(text: 'Habit'),
+                TextSpan(
+                    text: 'Hero',
+                    style: TextStyle(color: Theme.of(context).colorScheme.primary)),
               ],
             ),
           ),
@@ -79,7 +79,7 @@ class IntroPage extends StatelessWidget {
             'Build new habits',
             'Create your habits and track your progress',
             Icons.playlist_add_check,
-            const Color(0xFF9E4DFF),
+            Theme.of(context).colorScheme.primary,
           ),
           ..._bullet(
             context,
@@ -130,7 +130,7 @@ class _PrimaryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

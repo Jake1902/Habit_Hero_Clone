@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const kAccent = Color(0xFF9E4DFF);
+
 const _colors = [
   0xFF9E4DFF,
   0xFFFF5D5D,
@@ -20,40 +22,35 @@ const _colors = [
 ];
 
 class ColorPickerGrid extends StatelessWidget {
-  final int selected;
+  final int selectedColor;
   final ValueChanged<int> onChanged;
-  const ColorPickerGrid({super.key, required this.selected, required this.onChanged});
+  const ColorPickerGrid({super.key, required this.selectedColor, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
+    return GridView.count(
+      crossAxisCount: 4,
       shrinkWrap: true,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-      ),
-      itemCount: _colors.length,
-      itemBuilder: (_, i) {
-        final color = _colors[i];
-        final isSelected = color == selected;
-        return GestureDetector(
-          onTap: () => onChanged(color),
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(color),
-              border: isSelected
-                  ? Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
-                    )
-                  : null,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      children: [
+        for (final c in _colors)
+          InkWell(
+            onTap: () => onChanged(c),
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: Color(c),
+                borderRadius: BorderRadius.circular(8),
+                border: selectedColor == c
+                    ? Border.all(color: kAccent, width: 2)
+                    : null,
+              ),
             ),
           ),
-        );
-      },
+      ],
     );
   }
 }

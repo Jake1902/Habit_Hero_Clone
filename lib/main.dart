@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/data/preferences_service.dart';
+import 'core/data/providers.dart';
 import 'routing/app_router.dart';
 
 Future<void> main() async {
@@ -10,22 +12,23 @@ Future<void> main() async {
   final firstLaunch = await PreferencesService.isFirstLaunch();
   final initialRoute = firstLaunch ? '/onboarding' : '/';
   final router = AppRouter.create(initialRoute);
-  runApp(MyApp(router: router));
+  runApp(ProviderScope(child: MyApp(router: router)));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   final GoRouter router;
   const MyApp({super.key, required this.router});
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(themeModeProvider);
     return MaterialApp.router(
       title: 'Flutter Demo',
       routerConfig: router,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: mode,
     );
   }
 }

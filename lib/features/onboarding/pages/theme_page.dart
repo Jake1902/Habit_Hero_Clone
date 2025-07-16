@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/data/preferences_service.dart';
+import '../../../core/data/providers.dart';
 import '../onboarding_controller.dart';
 
-class ThemePage extends StatefulWidget {
+class ThemePage extends ConsumerStatefulWidget {
   final OnboardingController controller;
   const ThemePage({super.key, required this.controller});
 
   @override
-  State<ThemePage> createState() => _ThemePageState();
+  ConsumerState<ThemePage> createState() => _ThemePageState();
 }
 
-class _ThemePageState extends State<ThemePage> {
+class _ThemePageState extends ConsumerState<ThemePage> {
   ThemeMode _mode = ThemeMode.system;
+
+  @override
+  void initState() {
+    super.initState();
+    _mode = ref.read(themeModeProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +63,7 @@ class _ThemePageState extends State<ThemePage> {
           _PrimaryButton(
             label: 'Continue',
             onPressed: () async {
-              await PreferencesService.setThemeMode(_mode);
+              await ref.read(themeModeProvider.notifier).setTheme(_mode);
               await PreferencesService.setFirstLaunchFalse();
               if (mounted) context.go('/');
             },

@@ -11,8 +11,11 @@ class HabitRepository {
     _load();
   }
 
+  List<Habit> _activeHabits() =>
+      _cache.where((h) => !h.archived).toList();
+
   void _emit() {
-    _controller.add(List.unmodifiable(_cache));
+    _controller.add(List.unmodifiable(_activeHabits()));
   }
 
   Future<void> _load() async {
@@ -28,7 +31,7 @@ class HabitRepository {
   }
 
   Future<List<Habit>> getHabits() async {
-    return List.unmodifiable(_cache);
+    return List.unmodifiable(_activeHabits());
   }
 
   Future<void> addHabit(Habit h) async {
@@ -46,6 +49,23 @@ class HabitRepository {
 
   Future<void> deleteHabit(String id) async {
     _cache.removeWhere((e) => e.id == id);
+    await _save();
+  }
+
+  Future<void> archiveHabit(String id) async {
+    final idx = _cache.indexWhere((h) => h.id == id);
+    if (idx == -1) return;
+    final h = _cache[idx];
+    _cache[idx] = Habit(
+      id: h.id,
+      name: h.name,
+      description: h.description,
+      icon: h.icon,
+      colorValue: h.colorValue,
+      targetPerDay: h.targetPerDay,
+      archived: true,
+      createdAt: h.createdAt,
+    );
     await _save();
   }
 
